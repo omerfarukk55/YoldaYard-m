@@ -24,14 +24,14 @@ function App(){
     return subscriber;
   },[]);
   if(initializing) return null;
-  if(!user){
+  /*if(!user){
     return(
       <Stack.Navigator>
        <Stack.Screen 
        name='login'
        component={Login}
        options={{
-         headerTitle:()=><Header name="Bug Ninza"/>,
+         headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
           height:150,
           borderBottomLeftRadius:50,
@@ -46,7 +46,7 @@ function App(){
        name='Registration'
        component={Registration}
        options={{
-         headerTitle:()=><Header name="Bug Ninza"/>,
+         headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
           height:150,
           borderBottomLeftRadius:50,
@@ -60,21 +60,22 @@ function App(){
 
       </Stack.Navigator>
     );
-  }
+  }*/
   return(
     <Stack.Navigator>
     <Stack.Screen 
        name='Dashboard'
        component={Dashboard}
        options={{
-         headerTitle:()=><Header name="Dashboard"/>,
+         headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
           height:150,
           borderBottomLeftRadius:50,
           borderBottomRightRadius:50,
           backgroundColor:'#00e4d0',
           shadowColor:'#000',
-          elevation:25
+          elevation:25,
+          alignItems:"center"
          }
         }}
        />
