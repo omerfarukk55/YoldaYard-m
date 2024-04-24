@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { firebase } from '../config';
 
@@ -39,8 +39,7 @@ const Dashboard = (props) => {
     setRegion({
       latitude:latitude,
       longitude:longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      
     });
   };
 
@@ -67,10 +66,10 @@ const Dashboard = (props) => {
       
       <MapView 
         style={styles.map} 
+        provider={PROVIDER_GOOGLE}
         initialRegion={region}
         showsUserLocation ={true}
         showsMyLocationButton ={true}
-       
       />
       <Button title="Sign Out" onPress={signOut} />
     </View>
