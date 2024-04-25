@@ -5,8 +5,8 @@ const Header = (props) => {
     
 
   return (
-    <View style={{width:100}} >
-      <Text style={{margin:'auto',fontSize:15,fontWeight:'bold',textAlign: 'center',}} >{props.name}</Text>
+    <View style={{width:250}} >
+      <Text style={{margin:'auto',fontSize:14,fontWeight:'bold',textAlign:"center"}} >{props.name}</Text>
     </View>
   );
 };

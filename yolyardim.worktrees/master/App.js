@@ -24,7 +24,7 @@ function App(){
     return subscriber;
   },[]);
   if(initializing) return null;
-  /*if(!user){
+  if(!user){
     return(
       <Stack.Navigator>
        <Stack.Screen 
@@ -60,7 +60,7 @@ function App(){
 
       </Stack.Navigator>
     );
-  }*/
+  }
   return(
     <Stack.Navigator>
     <Stack.Screen 
@@ -69,13 +69,13 @@ function App(){
        options={{
          headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
-          height:150,
+          height:100,
           borderBottomLeftRadius:50,
           borderBottomRightRadius:50,
           backgroundColor:'#00e4d0',
           shadowColor:'#000',
-          elevation:25,
-          alignItems:"center"
+          elevation:20,
+          
          }
         }}
        />

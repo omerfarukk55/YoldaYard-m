@@ -69,8 +69,11 @@ export default Registration;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'start',
     alignItems: 'center',
+    margintop:100,
+    paddingTop:100,
+    gap:5,
   },
   input: {
     width: 400,
@@ -82,11 +85,12 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   button: {
-    width: 100,
-    height: 40,
-    borderRadius: 5,
-    backgroundColor: 'blue',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop:50,
+    height:70,
+    width:250,
+    backgroundColor:'#026efd',
+    alignItems:'center',
+    justifyContent:'center',
+    borderRadius:50,
   },
 });
