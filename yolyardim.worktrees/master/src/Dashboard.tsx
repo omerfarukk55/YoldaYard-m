@@ -70,7 +70,7 @@ const Dashboard = (props) => {
     const googleApisUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json";
     const input = searchText.trim();
     const location = `${region.latitude},${region.longitude}&radius=2000`;
-    const url = `${googleApisUrl}?query=${input}&location=${location}&key=apıkey`;
+    const url = `${googleApisUrl}?query=${input}&location=${location}&key=AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY`;
 
     try {
       const resp = await fetch(url);
