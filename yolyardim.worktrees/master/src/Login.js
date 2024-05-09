@@ -1,6 +1,6 @@
-import { View, Text,TouchableOpacity,TextInput,StyleSheet } from 'react-native'
-import React,{useState} from 'react'
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { firebase } from '../config';
 
 

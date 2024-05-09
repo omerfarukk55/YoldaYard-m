@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View,Text, TextInput, Button, StyleSheet } from 'react-native';
-import {firebase} from '../config';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import Header from '../components/Header';
+import { firebase } from '../config';
 
 
 const Registration = () => {
@@ -8,6 +9,7 @@ const Registration = () => {
   const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false); // Kayıt başarılı olup olmadığını saklayan state
 
   const handleSignUp = async () => {
     try {
@@ -20,6 +22,7 @@ const Registration = () => {
         await user.updateProfile({
           displayName: `${name} ${surname}`,
         });
+        setRegistrationSuccess(true);
       } else {
         console.warn('User profile update failed (might not be supported)');
       }
@@ -60,6 +63,9 @@ const Registration = () => {
         onChangeText={text => setPassword(text)}
       />
       <Button title="Kayıt Ol" onPress={handleSignUp} style={styles.button} />
+      {registrationSuccess && name && surname && (
+  <Header name={`${name} ${surname}`} />
+)}
     </View>
   );
 };
