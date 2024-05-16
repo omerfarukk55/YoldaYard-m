@@ -33,12 +33,12 @@ function App(){
        options={{
          headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
-          height:150,
+          textAlign: 'center',
+          height:120,
           borderBottomLeftRadius:50,
           borderBottomRightRadius:50,
           backgroundColor:'#00e4d0',
           shadowColor:'#000',
-          elevation:25
          }
         }}
        />
@@ -48,12 +48,13 @@ function App(){
        options={{
          headerTitle:()=><Header name="Çekici Uygulamasina Hoşgeldiniz"/>,
          headerStyle:{
-          height:150,
+          
+          height:120,
           borderBottomLeftRadius:50,
           borderBottomRightRadius:50,
           backgroundColor:'#00e4d0',
           shadowColor:'#000',
-          elevation:25
+          
          }
         }}
        />
@@ -64,18 +65,15 @@ function App(){
   return(
     <Stack.Navigator>
     <Stack.Screen 
-       name='Dashboard'
+       name='omerfaruk'
        component={Dashboard}
        options={{
-         
          headerStyle:{
-          height:100,
+          height:120,
           borderBottomLeftRadius:50,
           borderBottomRightRadius:50,
           backgroundColor:'#00e4d0',
           shadowColor:'#000',
-          elevation:20,
-          
          }
         }}
        />

@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     position: 'absolute',
-    width: '80%',
+    width: '72%',
     borderRadius:8,
     borderWidth:1,
     borderColor:'#aaa',
@@ -250,17 +250,3 @@ marginTop:8,
 });
 
 export default Dashboard;
-
-/* 
-        <MapView
-    style={styles.map}
-    initialRegion={region}
-  >
-    {userLocation && (
-      <Marker
-        coordinate={userLocation}
-        title="Konumum"
-      />
-    )}
-  </MapView>
-  */ 
