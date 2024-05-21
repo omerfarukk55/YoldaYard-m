@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import { firebase } from '../config';
 
 const calculateDistance = async (origin, destination) => {
@@ -159,6 +160,19 @@ const Dashboard = (props) => {
       </MapView>
       {selectedItem && (
         <View >
+          <MapViewDirections
+          origin={{
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude
+          }}
+          destination={{
+            latitude: selectedItem.geometry.location.lat,
+            longitude: selectedItem.geometry.location.lng
+          }}
+          apikey='AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY'
+          strokeWidth={3}
+          strokeColor="blue"
+          />
           <Callout>
             <View style={styles.calloutContainer}>
               <Text>{selectedItem.name}</Text>
