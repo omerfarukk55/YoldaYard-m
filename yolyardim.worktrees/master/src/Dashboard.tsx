@@ -1,13 +1,14 @@
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import GOOGLE_MAPS_API_KEY from 'react-native-dotenv';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import { firebase } from '../config';
-
+    
 const calculateDistance = async (origin, destination) => {
-  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY`;
-
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=${GOOGLE_MAPS_API_KEY}`;
+  
   try {
     const response = await fetch(url);
     const data = await response.json();
@@ -26,6 +27,7 @@ const calculateDistance = async (origin, destination) => {
 };
 
 const Dashboard = (props) => {
+  
   const [searchText, setSearchText] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -93,7 +95,7 @@ const Dashboard = (props) => {
     const googleApisUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json";
     const input = searchText.trim();
     const location = `${region.latitude},${region.longitude}&radius=2000`;
-    const url = `${googleApisUrl}?query=${input}&location=${location}&key=AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY`;
+    const url = `${googleApisUrl}?query=${input}&location=${location}&key=${GOOGLE_MAPS_API_KEY}`;
 
     try {
       const resp = await fetch(url);
@@ -134,6 +136,7 @@ const Dashboard = (props) => {
       console.error('Mesafe hesaplanamadı:', error);
     }
   };
+  const googleMapsApiKey = GOOGLE_MAPS_API_KEY.toString();
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{props.name}</Text>
@@ -169,7 +172,7 @@ const Dashboard = (props) => {
             latitude: selectedItem.geometry.location.lat,
             longitude: selectedItem.geometry.location.lng
           }}
-          apikey='AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY'
+          apikey = {googleMapsApiKey}
           strokeWidth={3}
           strokeColor="blue"
           />
