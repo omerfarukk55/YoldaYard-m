@@ -1,22 +1,27 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import GOOGLE_MAPS_API_KEY from 'react-native-dotenv';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
+import { Rating } from 'react-native-ratings';
+
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { firebase } from '../config';
-    
+
+import { RootStackParamList } from '../types';
+
+type DashboardNavigationProp = NavigationProp<RootStackParamList, 'Dashboard'>;
 const calculateDistance = async (origin, destination) => {
-  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=${GOOGLE_MAPS_API_KEY}`;
-  
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin.latitude},${origin.longitude}&destinations=${destination.latitude},${destination.longitude}&key=AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY`;
+
   try {
     const response = await fetch(url);
     const data = await response.json();
 
     if (data.status === 'OK') {
-      const distance = data.rows[0].elements[0].distance.value; // Mesafe metre cinsinden
+      const distance = data.rows[0].elements[0].distance.value;
       return distance / 1000; // Mesafeyi kilometreye dönüştür
-      
     } else {
       throw new Error('Mesafe hesaplanamadı');
     }
@@ -27,11 +32,12 @@ const calculateDistance = async (origin, destination) => {
 };
 
 const Dashboard = (props) => {
-  
   const [searchText, setSearchText] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const map = useRef<MapView | null>(null);
+  const [results, setResults] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(3);
+  const map = useRef(null);
   const [region, setRegion] = useState({
     latitude: 37.78825,
     longitude: -122.41191,
@@ -41,7 +47,8 @@ const Dashboard = (props) => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [distance, setDistance] = useState(null);
-
+  const navigation = useNavigation<DashboardNavigationProp>();
+  
   useEffect(() => {
     const requestLocationPermission = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -49,7 +56,7 @@ const Dashboard = (props) => {
         setErrorMsg('Permission to access location was denied');
         return;
       }
-      
+
       try {
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
@@ -61,6 +68,7 @@ const Dashboard = (props) => {
     };
 
     requestLocationPermission();
+    loadFavorites();
   }, []);
 
   const updateRegion = (lat, lng) => {
@@ -71,11 +79,49 @@ const Dashboard = (props) => {
     }));
   };
 
+  const loadFavorites = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem('favorites');
+      if (favorites) {
+        setResults(JSON.parse(favorites)); // Burada setResults kullanılmalı
+      }
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+  const addToFavorites = async (item) => {
+    const newItem = {
+      ...item,
+      distance: distance,
+      comment: comment,
+      rating: rating,
+    };
+
+    try {
+      let favorites = await AsyncStorage.getItem('favorites');
+      console.log('Retrieved favorites from AsyncStorage:', favorites);
+
+      if (favorites) {
+        favorites = JSON.parse(favorites); // Parse string to array
+      } else {
+        Favorites = []; // Initialize as empty array if no favorites found
+      }
+      console.log('Parsed favorites:', favorites);
+
+      favorites.push(newItem); // Add new item to favorites array
+      console.log('Updated favorites:', favorites);
+
+      await AsyncStorage.setItem('favorites', JSON.stringify(favorites)); // Store updated favorites array
+      alert('Favorilere eklendi!');
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebase.auth().signOut();
       console.log('Signed out successfully!');
-      // Additional actions after sign out (e.g., redirecting)
     } catch (error) {
       console.error('Sign out error:', error);
     }
@@ -88,14 +134,13 @@ const Dashboard = (props) => {
     displayText = JSON.stringify(location);
   }
 
-   
   const searchPlaces = async () => {
     if (!searchText.trim().length) return;
 
     const googleApisUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json";
     const input = searchText.trim();
     const location = `${region.latitude},${region.longitude}&radius=2000`;
-    const url = `${googleApisUrl}?query=${input}&location=${location}&key=${GOOGLE_MAPS_API_KEY}`;
+    const url = `${googleApisUrl}?query=${input}&location=${location}&key=AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY`;
 
     try {
       const resp = await fetch(url);
@@ -123,6 +168,7 @@ const Dashboard = (props) => {
       console.log(e);
     }
   };
+
   const handleMarkerPress = async (marker) => {
     try {
       const { coords } = location;
@@ -136,50 +182,65 @@ const Dashboard = (props) => {
       console.error('Mesafe hesaplanamadı:', error);
     }
   };
-  const googleMapsApiKey = GOOGLE_MAPS_API_KEY.toString();
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>{props.name}</Text>
-
+      <Button title="Favoriler" onPress={() => navigation.navigate('Favorites')} />
       <MapView
-        ref={map} 
+        ref={map}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
-        initialRegion={region} 
+        initialRegion={region}
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
         {results.length ? results.map((item, i) => (
           <Marker
-          key={`search-item-${i}`}
-          coordinate={{
-            latitude: item.geometry.location.lat,
-            longitude: item.geometry.location.lng
-          }}
-          title={item.name}
-          onPress={() => handleMarkerPress(item)}>
-          </Marker>
-      )) : null}
+            key={`search-item-${i}`}
+            coordinate={{
+              latitude: item.geometry.location.lat,
+              longitude: item.geometry.location.lng
+            }}
+            title={item.name}
+            onPress={() => handleMarkerPress(item)}
+          />
+        )) : null}
       </MapView>
       {selectedItem && (
-        <View >
+        <View>
           <MapViewDirections
-          origin={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude
-          }}
-          destination={{
-            latitude: selectedItem.geometry.location.lat,
-            longitude: selectedItem.geometry.location.lng
-          }}
-          apikey = {googleMapsApiKey}
-          strokeWidth={3}
-          strokeColor="blue"
+            origin={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude
+            }}
+            destination={{
+              latitude: selectedItem.geometry.location.lat,
+              longitude: selectedItem.geometry.location.lng
+            }}
+            apikey='AIzaSyB3gmOSr3xGi3hAd-gfO5bTk5GXVwjk3TY'
+            strokeWidth={3}
+            strokeColor="blue"
           />
           <Callout>
             <View style={styles.calloutContainer}>
-              <Text>{selectedItem.name}</Text>
+              <Text style={styles.text}>{selectedItem.name}</Text>
               <Text>Mesafe: {distance} km</Text>
+              <Rating
+                imageSize={20}
+                startingValue={rating}
+                onFinishRating={setRating}
+                style={styles.rating}
+              />
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Yorum ekleyin"
+                onChangeText={setComment}
+                value={comment}
+              />
+              <TouchableOpacity style={styles.buttonContent} onPress={() => addToFavorites(selectedItem)}>
+                <Text style={styles.buttonLabel}>Favorilere Ekle</Text>
+              </TouchableOpacity>
             </View>
           </Callout>
         </View>
@@ -201,68 +262,100 @@ const Dashboard = (props) => {
   );
 };
 
+
 const styles = StyleSheet.create({
-  calloutContainer:{
-   position: 'absolute',
-   bottom: 50,
-   fontSize: 20,
-   textAlign: 'center',
-   left: 50,
-   width: 150,
-   height: 70,
-   borderRadius: 10,
-   padding: 10,
-   shadowColor: '#000',
-   backgroundColor: '#fff',
-   zIndex:10,
-  },
-  searchBox: {
-    position: 'absolute',
-    width: '72%',
-    borderRadius:8,
-    borderWidth:1,
-    borderColor:'#aaa',
-    backgroundColor:'#ffffff',
-    height:110,
-    padding:8,
-    alignSelf:"center",
-    marginTop:40,
-  },
-  searchBoxField:{
-borderColor:"#777",
-borderWidth:1,
-borderRadius:4,
-paddingHorizontal:8,
-paddingVertical:4,
-fontSize:18,
-marginTop:8,
-  },
-  buttonContainer:{
-  alignItems:"center",
-  justifyContent:'center',
-  backgroundColor:'#26f',
-  padding:8,
-  borderRadius:8,
-  },
-  buttonLabel:{
-    fontSize:18,
-    color:'#fff',
-  },
   container: {
     flex: 1,
-    marginLeft: 15,
+    padding: 10,
+  },
+  text:{
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    margin:5,
+  },
+  rating:{
+    padding: 3,
+    height: 30,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    width: '100%',
+    marginBottom: 5,
+    marginTop: 5,
   },
   header: {
+    fontSize: 24,
     fontWeight: 'bold',
-    fontSize: 28,
-    textAlign: 'center',
+    marginBottom: 10,
+    display:'flex',
+    alignItems: 'center',
   },
- 
   map: {
+    width: '100%',
+    height: '80%',
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  buttonContent:{
+    backgroundColor: '#ea1111',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  commentInput:{
+      width:'100%',
+      borderColor: 'black',
+      borderWidth: 1,
+      marginBottom: 10,
+      padding: 10,
+      borderRadius: 5,
+      borderBlockColor: 'black',
+  }, 
+  searchBox: {
+    position: 'absolute',
+    top: 100,
+    left: '5%',
+    width: '60%',
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  searchBoxField: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingLeft: 10,
+  },
+  buttonContainer: {
+    backgroundColor: '#00e4d0',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonLabel: {
+    color: 'white',
+    fontSize: 16,
+  },
+  calloutContainer: {
+    position: 'absolute',
+    zIndex: 100,
+    width:250,
+    alignContent: 'center',
+    marginTop:'auto',
     flex: 1,
-    width: '95%',
-    alignSelf: 'center',
-    height: '95%',
+    left: 50,
+    padding: 10,
+    borderRadius:10,
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    bottom: 40,
+    alignItems: 'center',
   },
 });
 
